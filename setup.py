@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='lyner',
-    version='0.4.0',
+    version='0.4.1',
     packages=find_packages(),
     url='',
     license='',
@@ -27,7 +27,7 @@ setup(
                       "joblib>=0.14",
                       "networkx>=2.4",
                       "natsort>=6.2",
-                      "click-alias",
+                      "click-aliases",
                       "Cluster_Ensembles>=1.16"
                       ],
     entry_points={'console_scripts': ["lyner= lyner.main:main"]}

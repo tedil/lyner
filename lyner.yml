@@ -26,5 +26,5 @@ dependencies:
   - natsort =6.2
   - pip >=19
   - pip:
-    - click-alias
+    - click-aliases
     - Cluster_Ensembles>=1.16
