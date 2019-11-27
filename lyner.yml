@@ -27,4 +27,3 @@ dependencies:
   - pip >=19
   - pip:
     - click-aliases
-    - Cluster_Ensembles>=1.16

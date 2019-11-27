@@ -28,7 +28,6 @@ setup(
                       "networkx>=2.4",
                       "natsort>=6.2",
                       "click-aliases",
-                      "Cluster_Ensembles>=1.16"
                       ],
     entry_points={'console_scripts': ["lyner= lyner.main:main"]}
 )

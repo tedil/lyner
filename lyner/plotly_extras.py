@@ -3,7 +3,6 @@ import warnings
 from collections import defaultdict
 from itertools import product, combinations
 
-import networkx
 import numpy as np
 import pandas as pd
 import scipy.stats
