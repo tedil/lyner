@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='lyner',
-    version='0.4.2',
+    name="lyner",
+    version="0.4.2",
     packages=find_packages(),
-    url='',
-    license='',
-    author='Till Hartmann',
-    author_email='till.hartmann@udo.edu',
-    description='',
+    url="https://github.com/tedil/lyner",
+    license="MIT",
+    author="Till Hartmann",
+    author_email="till.hartmann@udo.edu",
+    description="A chaining toolbox for working with dataframes",
     install_requires=["plotly>=4.3",
                       #"plotly-orca>=1.2",
                       "psutil>=5.6",
@@ -29,5 +29,5 @@ setup(
                       "natsort>=6.2",
                       "click-aliases",
                       ],
-    entry_points={'console_scripts': ["lyner= lyner.main:main"]}
+    entry_points={"console_scripts": ["lyner= lyner.main:main"]}
 )
