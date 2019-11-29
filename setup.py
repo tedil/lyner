@@ -6,6 +6,7 @@ setup(
     packages=find_packages(),
     url="https://github.com/tedil/lyner",
     license="MIT",
+    data_files = [("", ["LICENSE"])],
     author="Till Hartmann",
     author_email="till.hartmann@udo.edu",
     description="A chaining toolbox for working with dataframes",
