@@ -114,7 +114,7 @@ def estimate_n_bins(x):
     return n_bins
 
 
-def _mk_networkx_figure(G: Graph, pos, use_weights=True):
+def _mk_networkx_figure(G: Graph, pos, use_weights=True, node_cliques=defaultdict(list)):
     nodelist = list(G.nodes())
     edgelist = list(G.edges())
     node_xy = np.asarray([pos[v] for v in nodelist])
@@ -166,12 +166,28 @@ def _mk_networkx_figure(G: Graph, pos, use_weights=True):
             #     titleside='right'
             # ),
             line=dict(width=2)))
-
-    for i, (x, y) in enumerate(node_xy):
+    clique_map = {}
+    i = 0
+    for cliques in node_cliques.values():
+        for clique in cliques:
+            k = tuple(sorted(clique))
+            if k not in clique_map:
+                clique_map[k] = i
+                i += 1
+    num_cliques = len(clique_map)
+    clique_colors = {c: f'hsv({(360 / (num_cliques + 1)) * i}, 0.75, 0.75)' for c, i in clique_map.items()}
+    colors = []
+    for i, ((x, y), node) in enumerate(zip(node_xy, nodelist)):
+        possible_cliques = node_cliques[node]
+        if len(possible_cliques) > 0:
+            largest_clique = sorted(possible_cliques, key=lambda x: len(x), reverse=True)[0]
+            colors.append(clique_colors[tuple(sorted(largest_clique))])
+        else:
+            colors.append('hsv(0, 0, 0)')
         node_trace['x'] += tuple([x])
         node_trace['y'] += tuple([y])
         node_trace['text'] += tuple([nodelist[i]])
-
+    node_trace['marker']['color'] = colors
     return Figure(data=[edge_trace, node_trace],
                   layout=Layout(
                       showlegend=False,
@@ -356,7 +372,7 @@ def _figure_get_estimates(pipe):
     shapes = [dict(type='path',
                    path=f'M {" L ".join([str(x) + " " + str(y) for (x, y, _) in tri])} Z',
                    fillcolor=f'rgba({",".join(tcolors2[k])}, '
-                   f'{(areas[k] / max_area) ** 0.5 / 4.0})',
+                             f'{(areas[k] / max_area) ** 0.5 / 4.0})',
                    line=dict(color='rgba(0, 0, 0, 0.1)'))
               for k, tri in triangles.items()]
     fig = Figure(data=[Scatter(x=pipe.estimate.loc[:, idx[group, param_names[0]]].values.ravel(),

@@ -1,5 +1,6 @@
 import logging
 import sys
+from collections import defaultdict
 from itertools import product
 
 import click
@@ -188,7 +189,7 @@ def pairwise_distances(pipe: Pipe, metric):
 @click.option("--threshold", "-t", type=click.FLOAT, default=-1)
 @click.option("--layout", "-l", type=click.Choice(["fruchterman_reingold", "kamada_kawai"]),
               default="fruchterman_reingold")
-@click.option("--cliques", "-c", is_flag=True, default=False)
+@click.option("--cliques", "-c", is_flag=True, default=False, help="Color nodes by largest containing clique")
 @pass_pipe
 @arggist
 def dist_graph(pipe: Pipe, threshold: float, layout: str, cliques: bool):
@@ -200,33 +201,29 @@ def dist_graph(pipe: Pipe, threshold: float, layout: str, cliques: bool):
     n_samples = samples.shape[0]
     max_w = np.max(weights)
     min_w = np.min(weights + np.eye(n_samples) * max_w)
-    G = nx.Graph()
+    graph = nx.Graph()
     weight_values = []
     for (i, sa), (j, sb) in product(enumerate(samples), enumerate(samples)):
         if i != j:
             w = 1 - (weights[i, j] - min_w) / (max_w - min_w)
-            G.add_edge(sa, sb, weight=w)
+            graph.add_edge(sa, sb, weight=w)
             weight_values.append(w)
 
     weight_values = np.array(weight_values)
     if threshold == -1:
         threshold = np.median(weight_values) - np.nextafter(0., 1)
     print(np.min(weight_values), np.median(weight_values), np.max(weight_values))
-    under_threshold_edges = [(u, v) for (u, v, d) in G.edges(data=True) if d['weight'] < threshold]
+    under_threshold_edges = [(u, v) for (u, v, d) in graph.edges(data=True) if d['weight'] < threshold]
 
-    G.remove_edges_from(under_threshold_edges)
+    graph.remove_edges_from(under_threshold_edges)
     if cliques:
-        G = nx.make_max_clique_graph(G)
-        # G = nx.empty_graph()
-        # cliques = list(nx.find_cliques(G))
-        # for i, clique in enumerate(cliques):
-        #     G.add_node(i, nodes=list(clique))
-        use_weights = False
+        cliques = list(nx.find_cliques(graph))
+        node_cliques = nx.cliques_containing_node(graph, list(graph.nodes()), cliques)
     else:
-        use_weights = True
+        node_cliques = defaultdict(list)
     layout_fn = getattr(nx, layout + "_layout", "fruchterman_reingold_layout")
-    pos = layout_fn(G, weight="weight")
-    fig = _mk_networkx_figure(G, pos, use_weights=use_weights)
+    pos = layout_fn(graph, weight="weight")
+    fig = _mk_networkx_figure(graph, pos, use_weights=True, node_cliques=node_cliques)
     oplot(fig)
 
 
