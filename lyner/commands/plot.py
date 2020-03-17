@@ -17,7 +17,7 @@ from scipy.cluster.hierarchy import fcluster, linkage
 
 from lyner._main import rnax
 from lyner.click_extras import ListChoice, INT_RANGE_LIST, pass_pipe, arggist, Pipe, CombinatorialChoice, DICT, \
-    plain_command_string
+    plain_command_string, LIST
 from lyner.dendromap import dendromap_square, dendromap
 from lyner.misc import connectivity, _connectivity
 from lyner.plotly_extras import _figure_add_changes, _figure_get_estimates, \
@@ -195,7 +195,7 @@ def dendro(pipe: Pipe, axis, methods, mode, num_components, num_runs):
 @rnax.command()
 @click.option("--outfile", "-o", type=click.Path(writable=True, file_okay=True, dir_okay=False))
 @click.option("--directory", "-d", type=click.Path(writable=True, dir_okay=True, file_okay=False))
-@click.option("--with-annotation", is_flag=True)
+@click.option("--with-annotation", type=LIST, default=[])
 @click.option("--annotation-split", type=click.FloatRange(0, 1), default=0.4)
 @click.option("--colorscale",
               type=click.Choice(['Greys', 'YlGnBu', 'Greens', 'YlOrRed', 'Bluered',
@@ -209,7 +209,7 @@ def dendro(pipe: Pipe, axis, methods, mode, num_components, num_runs):
 @click.option("--auto-open", "-a", is_flag=True, callback=lambda ctx, param, value: not ctx.params['outfile'] or value)
 @pass_pipe
 def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dict, auto_open: bool,
-         with_annotation: bool, annotation_split: float):
+         with_annotation: list, annotation_split: float):
     """Visualize current selection in different ways, depending on context."""
     title = plain_command_string(pipe.command)
     title = f"<span style='font-size:0.7em'>{title}</span>"
@@ -263,7 +263,8 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
         x_labels = [str(v[1]).strip() if not isinstance(v, str) else v for v in matrix.columns.values]
         fig = Figure(data=[Heatmap(z=matrix.values, x=x_labels, y=y_labels)])
         if with_annotation:
-            num_annotations = len(pipe.annotation.columns)
+            selection = set(pipe.supplement.columns) & set(with_annotation)
+            num_annotations = len(selection)
             gridfig = plotly.subplots.make_subplots(rows=num_annotations + 1, cols=1,
                                                     shared_xaxes=True,
                                                     shared_yaxes=False,
@@ -312,7 +313,7 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
         gridfig.update_layout(template="plotly_white")
 
         if with_annotation:
-            annotation: pd.DataFrame = pipe.annotation
+            annotation: pd.DataFrame = pipe.supplement[with_annotation]
 
             a, b = set(annotation.index), set(
                 pipe.matrix.columns.levels[1] if pipe.matrix.columns.nlevels > 1 else pipe.matrix.columns)

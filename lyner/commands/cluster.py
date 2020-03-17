@@ -138,7 +138,14 @@ def cluster_indices(pipe: Pipe):
     if not hasattr(pipe, attr):
         pipe[attr] = df.T
     else:
-        pipe[attr] = pd.concat([pipe[attr], df.T])
+        pipe[attr] = pd.concat([pipe[attr], df.T], sort=True)
+    if hasattr(pipe, "supplement"):
+        if "Cluster" in pipe.supplement.columns:
+            pass
+        else:
+            if attr.endswith("_samples"):
+                pipe.supplement = pipe.supplement.join(pipe[attr].iloc[0].astype(float), on=pipe.supplement.index, rsuffix="_T")
+        print(pipe.supplement)
 
 
 @rnax.command()

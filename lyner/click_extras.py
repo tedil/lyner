@@ -162,7 +162,7 @@ class DataFrameType(click.Path):
                                 encoding='utf-8')
         non_numeric_columns = [column for column in dataframe.columns
                                if np.dtype(dataframe[column]) in {np.dtype('O')}]
-        if self.drop_non_numeric:
+        if self.drop_non_numeric and non_numeric_columns:
             print(f"[INFO] dropping non-numeric columns {', '.join(non_numeric_columns)}.", file=sys.stderr)
             # how exactly does python inheritance work?
             # Why does expr_matrix.drop return an ExpMatrix instead of an ExprMatrix?

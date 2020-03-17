@@ -16,12 +16,16 @@ idx = pd.IndexSlice
 
 @rnax.command()
 @click.argument('matrix', type=DataFrameType(exists=True, dir_okay=False, file_okay=True, drop_non_numeric=True))
+@click.option('-i', '--index', type=click.STRING)
 @pass_pipe
-def read(pipe: Pipe, matrix: Tuple[DataFrame, DataFrame]):
+def read(pipe: Pipe, matrix: Tuple[DataFrame, DataFrame], index: str):
     """Read abundance/count matrix from `MATRIX` (tsv format).
     """
     LOGGER.info("Reading input file…")
     matrix, aux = matrix
+    if index is not None:
+        matrix[index] = aux[index]
+        matrix.set_index(matrix[index], inplace=True, drop=True)
     pipe.matrix = matrix.sort_index(kind='mergesort')  # sort genes lexicographically → enables slicing
     pipe.supplement = aux.sort_index(kind='mergesort') if aux is not None else None
     pipe.is_clustered = False
@@ -76,7 +80,10 @@ def store(pipe: Pipe, out: str, mode: str):
 def supplement(pipe: Pipe, supplementary_data: str):
     """Supply additional data which may be used for plot colors, for example."""
     d = pd.read_csv(supplementary_data, sep='\t', header=0, index_col=0, comment='#')
-    pipe.supplement = d
+    if hasattr(pipe, "supplement") and pipe.supplement is not None:
+        pipe.supplement = pipe.supplement.join(d, on=pipe.matrix.index)
+    else:
+        pipe.supplement = d
     LOGGER.info(f"Supplementary information loaded: {d.columns.tolist()}")
 
 

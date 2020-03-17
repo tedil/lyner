@@ -422,13 +422,18 @@ def _color_by_supplement_button(supplement: pd.DataFrame):
         return None
     columns = supplement.columns.values.tolist()
     names = supplement.index.values.tolist()
+    column_types = {col: "continuous" if np.issubdtype(supplement[col].values.dtype, np.float) else "categorical"
+                    for col in columns}
     column_values = {col: list(map(str, supplement[col].fillna("_unknown").values)) for col in columns}
     column_uniques = {col: list(sorted(list(np.unique(column_values[col])))) for col in columns}
     column_colors = {col: {unique: i for i, unique in enumerate(uniques)} for col, uniques in column_uniques.items()}
 
     def get_color(i, col):
         if column_uniques[col][i] != "_unknown":
-            return f"hsv({int(i / len(column_uniques[col]) * 360)}, 0.75, 0.66)"
+            if column_types[col] == "categorical":
+                return f"hsv({int(i / len(column_uniques[col]) * 360)}, 0.75, 0.66)"
+            else:
+                return f"hsv(0, 0.75, {1 - (float(column_uniques[col][i]) - np.nanmin(supplement[col].values)) / (np.nanmax(supplement[col].values) - np.nanmin(supplement[col].values))})"
         else:
             return "hsva(0, 0, 0.75, 0.33)"
 

@@ -207,6 +207,9 @@ def filter(pipe: Pipe,
         targets = set(list(pipe.matrix.index))
         drop = targets & drop
         pipe.matrix = pipe.matrix.drop(list(drop), axis=0)
+        if pipe.supplement is not None:
+            drop_supp = set(list(pipe.supplement.index)) & drop
+            pipe.supplement = pipe.supplement.drop(list(drop_supp), axis=0)
         num_dropped = num_features - pipe.matrix.shape[0]
         LOGGER.info(f"Dropped {num_dropped} rows prefixed with {prefix}. New dimensions: {pipe.matrix.shape}")
     if suffix:
@@ -219,6 +222,9 @@ def filter(pipe: Pipe,
         targets = set(list(pipe.matrix.index))
         drop = targets & drop
         pipe.matrix = pipe.matrix.drop(list(drop), axis=0)
+        if pipe.supplement is not None:
+            drop_supp = set(list(pipe.supplement.index)) & drop
+            pipe.supplement = pipe.supplement.drop(list(drop_supp), axis=0)
         num_dropped = num_features - pipe.matrix.shape[0]
         LOGGER.info(f"Dropped {num_dropped} rows suffixed with {suffix}. New dimensions: {pipe.matrix.shape}")
     if negative:
