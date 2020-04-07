@@ -206,13 +206,15 @@ def dendro(pipe: Pipe, axis, methods, mode, num_components, num_runs):
               type=CombinatorialChoice(["heatmap", "scatter", "lines", "bar", "dendrogram", "histogram"]),
               default="heatmap")
 @click.option("--mode-config", "-c", type=DICT, default={})
+@click.option("--title", "-t", type=click.STRING)
 @click.option("--auto-open", "-a", is_flag=True, callback=lambda ctx, param, value: not ctx.params['outfile'] or value)
 @pass_pipe
 def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dict, auto_open: bool,
-         with_annotation: list, annotation_split: float):
+         with_annotation: list, annotation_split: float, title: str):
     """Visualize current selection in different ways, depending on context."""
-    title = plain_command_string(pipe.command)
-    title = f"<span style='font-size:0.7em'>{title}</span>"
+    if not title:
+        title = plain_command_string(pipe.command)
+        title = f"<span style='font-size:0.7em'>{title}</span>"
     if not directory:
         if outfile:
             if os.sep in outfile:
