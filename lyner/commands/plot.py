@@ -342,7 +342,7 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
             json.dump(fig, open(f'{directory}{os.sep}{outfile}.json', 'wt'), cls=plotly.utils.PlotlyJSONEncoder)
         if filetype in {'svg', 'png'}:
             pio.orca.ensure_server()
-            write_image(gridfig, f'{directory}{os.sep}{outfile}.svg', width=1920, height=1080)
+            write_image(gridfig, f'{directory}{os.sep}{outfile}.{filetype}', width=1920, height=1080)
     if "scatter" in mode:
         matrix = np.transpose(matrix)
         dimension = matrix.shape[1]
@@ -363,7 +363,7 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
             if filetype in {'html'}:
                 oplot(fig, show_link=False, filename=f'{directory}{os.sep}{outfile}.html', auto_open=auto_open)
             if filetype in {'svg', 'png'}:
-                write_image(fig, f'{directory}{os.sep}{outfile}.svg', width=1920, height=1080)
+                write_image(fig, f'{directory}{os.sep}{outfile}.{filetype}', width=1920, height=1080)
         else:
             if dimension > 6:
                 LOGGER.warning(f"Plotting {dimension}² subplots may take quite some time.")
@@ -413,7 +413,7 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
         if filetype in {'html'}:
             oplot(fig, show_link=False, filename=f'{directory}{os.sep}{outfile}.html', auto_open=auto_open)
         if filetype in {'svg', 'png'}:
-            write_image(fig, f'{directory}{os.sep}{outfile}.svg', width=1920, height=1080)
+            write_image(fig, f'{directory}{os.sep}{outfile}.{filetype}', width=1920, height=1080)
     if "histogram" in mode:
         dimension = matrix.shape[0]
         _column_names = matrix.columns.values.tolist()
@@ -426,7 +426,7 @@ def plot(pipe: Pipe, outfile, directory, colorscale, mode: str, mode_config: dic
         if filetype in {'html'}:
             oplot(fig, show_link=False, filename=f'{directory}{os.sep}{outfile}.html', auto_open=auto_open)
         if filetype in {'svg', 'png'}:
-            write_image(fig, f'{directory}{os.sep}{outfile}.svg', width=1920, height=1080)
+            write_image(fig, f'{directory}{os.sep}{outfile}.{filetype}', width=1920, height=1080)
 
 
 def _mk_annotation_bar(annotation: pd.DataFrame):
